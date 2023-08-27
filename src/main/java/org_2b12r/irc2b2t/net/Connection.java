@@ -153,10 +153,13 @@ public class Connection {
     public void finishConnect() throws Exception {
         channel.finishConnect();
         channel.register(selector, SelectionKey.OP_READ, this);
-        channel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
-        channel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, 60);
-        channel.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, 10);
-        channel.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, 6);
+        try {
+            channel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
+            channel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, 60);
+            channel.setOption(ExtendedSocketOptions.TCP_KEEPINTERVAL, 10);
+            channel.setOption(ExtendedSocketOptions.TCP_KEEPCOUNT, 6);
+        }
+        catch (UnsupportedOperationException ignored){}
     }
 
     public void runBeforeWrite(Runnable run) {
