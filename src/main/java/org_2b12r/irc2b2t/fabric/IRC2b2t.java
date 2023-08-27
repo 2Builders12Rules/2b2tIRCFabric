@@ -118,31 +118,33 @@ public class IRC2b2t implements ClientModInitializer {
 
 
     public static boolean onChat(String message) {
-        if (message.startsWith("/irc")) {
-            sendToIRC = !sendToIRC;
-            Utils.sendChatMessage(Text.of((sendToIRC ? "§aEnabled§r" : "§cDisabled§r") + " sending messages to IRC."));
-            return true;
-        }
-
         if (!sendToIRC)
             return false;
 
         if (connection == null || connection.state != State.CONNECTED) {
             Utils.sendChatMessage(Text.of("§cNot connected to IRC server."));
-        } else {
-            if (message.startsWith("/")) {
-                if (!commands.contains(message.substring(1).split(" ")[0].toLowerCase()))
-                    return false;
-            }
-            try {
-                connection.sendPacket(new Packets.C2SChat(message));
-            } catch (Exception e) {
-                Utils.sendChatMessage(Text.of("§cFailed to send message to IRC server: " + e.getMessage()));
-            }
         }
-
-        Utils.getMC().inGameHud.getChatHud().addToMessageHistory(message);
-
+        sendToIRC(message);
         return true;
+    }
+
+    public static boolean onCommand(String command) {
+        if (command.startsWith("irc")) {
+            sendToIRC = !sendToIRC;
+            Utils.sendChatMessage(Text.of((sendToIRC ? "§aEnabled§r" : "§cDisabled§r") + " sending messages to IRC."));
+            return true;
+        }
+        if (!commands.contains(command.split(" ")[0].toLowerCase()))
+            return false;
+        sendToIRC("/"+command);
+        return true;
+    }
+
+    public static void sendToIRC(String message) {
+        try {
+            connection.sendPacket(new Packets.C2SChat(message));
+        } catch (Exception e) {
+            Utils.sendChatMessage(Text.of("§cFailed to send message to IRC server: " + e.getMessage()));
+        }
     }
 }
