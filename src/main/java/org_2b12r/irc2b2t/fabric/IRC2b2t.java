@@ -76,16 +76,19 @@ public class IRC2b2t implements ClientModInitializer {
                     }
                 } catch (UnresolvedAddressException | ConnectException e) {
                     reconnectDelayMs = 30000;
+
+                    try {
+                        Thread.sleep(reconnectDelayMs);
+                    } catch (InterruptedException ignored) {}
                 } catch (Exception e) {
                     if (connection != null)
                         connection.close();
 
                     runNextTick(() -> Utils.print("Disconnected: " + e));
-                } finally {
+
                     try {
                         Thread.sleep(reconnectDelayMs);
-                    } catch (InterruptedException ignored) {
-                    }
+                    } catch (InterruptedException ignored) {}
                 }
             }
         }, "IRC-Thread").start();
