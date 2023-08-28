@@ -109,20 +109,8 @@ public class DataBuffer {
         this.buffer[this.writePos++] = (byte)(input);
     }
 
-    public void writeLongs(long[] input) {
-        for (int i = 0; i < input.length; i++)
-            writeLong(input[i]);
-    }
-
     public long readLong() {
         return ((long) (this.readByte() & 0xFF) << 56) | ((long) (this.readByte() & 0xFF) << 48) | ((long) (this.readByte() & 0xFF) << 40) | ((long) (this.readByte() & 0xFF) << 32) | ((long) (this.readByte() & 0xFF) << 24) | ((long) (this.readByte() & 0xFF) << 16) | ((long) (this.readByte() & 0xFF) << 8) | (long) (this.readByte() & 0xFF);
-    }
-
-    public long[] readLongs(int length) {
-        final long[] longs = new long[length];
-        for (int i = 0; i < length; i++)
-            longs[i] = this.readLong();
-        return longs;
     }
 
     public void writeUUID(UUID uuid) {
@@ -246,14 +234,5 @@ public class DataBuffer {
 
     public byte[] getByteArray() {
         return this.buffer;
-    }
-
-    @Override
-    public DataBuffer clone() {
-        final DataBuffer newBuffer = new DataBuffer(this.length());
-        System.arraycopy(this.buffer, 0, newBuffer.buffer, 0, this.length());
-        newBuffer.writePos = this.writePos;
-        newBuffer.readPos = this.readPos;
-        return newBuffer;
     }
 }
