@@ -10,7 +10,7 @@
 4. Launch Minecraft and enjoy the new uncensored chat experience on 2b2t!
 
 ## Usage
-Once the mod is installed, simply join the 2b2t server as you normally would. Chat freely and express yourself without the fear of unexpected mutes, as long as you refrain from engaging in any illegal activities.
+Once the mod is installed, simply join the 2b2t server as you normally would and type `/irc` to toggle sending messages to IRC. Chat freely and express yourself without the fear of unexpected mutes, as long as you refrain from engaging in any illegal activities.
 
 ## Contributing
 We welcome contributions to enhance the functionality and features of 2b2t IRC. If you have any suggestions, bug reports, or would like to contribute code, please open an issue or submit a pull request on our GitHub repository.
