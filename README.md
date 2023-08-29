@@ -1,3 +1,8 @@
+# Downloads
+- [CurseForge](https://www.curseforge.com/minecraft/mc-mods/irc-2b2t-fabric/files/4726570)
+- [Modrinth](https://cdn.modrinth.com/data/3Ej1RlKQ/versions/EJ0G2l4d/IRC2b2tFabric-1.0.3-1.20.1.jar)
+- [GitHub](https://github.com/2Builders12Rules/2b2tIRCFabric/releases/download/v1.0.3/IRC2b2tFabric-1.0.3-1.20.1.jar)
+
 # 2b2t IRC
 ![2b2t IRC Icon](src/main/resources/assets/irc2b2t/icon.png)
 ## Description
