@@ -17,7 +17,8 @@ public class FabricPacketHandler implements IPacketHandler {
     @Override
     public void handle(Packets.Disconnect packet) {
         IRC2b2t.reconnectDelayMs = packet.clientReconnectTimer * 1000;
-        throw new ConnectionException(Text.Serializer.fromLenientJson(packet.reason));
+        IRC2b2t.lastDisconnectReason = Text.Serializer.fromLenientJson(packet.reason);
+        throw new ConnectionException(IRC2b2t.lastDisconnectReason);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class FabricPacketHandler implements IPacketHandler {
             con.setKey(sharedKey);
         } catch (IOException | AuthenticationException | NetworkEncryptionException e) {
             IRC2b2t.runNextTick(() -> Utils.print("Failed to authenticate: " + e.getMessage()));
-            IRC2b2t.reconnectDelayMs = 20000;
+            IRC2b2t.reconnectDelayMs = -1; // disable auto reconnect
             e.printStackTrace();
             throw new RuntimeException(e);
         }

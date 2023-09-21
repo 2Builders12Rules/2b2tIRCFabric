@@ -18,6 +18,6 @@ public class Utils {
     }
 
     public static void print(String message) {
-        sendChatMessage(Text.of("§r[§cIRC§r] " + message));
+        sendChatMessage(Text.of(IRC2b2t.ircPrefix + message));
     }
 }
