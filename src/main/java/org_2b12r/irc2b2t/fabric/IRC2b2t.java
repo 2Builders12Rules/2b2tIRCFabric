@@ -175,10 +175,10 @@ public class IRC2b2t implements ClientModInitializer {
             Utils.sendChatMessage(Text.of(String.format("§cNot connected to IRC server. %s", canAutoReconnect() ? "Reconnecting..." : "Use /irc command to reconnect to IRC.")));
             if(!canAutoReconnect() && lastDisconnectReason != null)
                 Utils.sendChatMessage(Text.literal("Last Disconnect Reason: ").append(lastDisconnectReason));
+            sendToIRC = false;
         }
 
         Utils.getMC().inGameHud.getChatHud().addToMessageHistory(message);
-
         return true;
     }
 }
