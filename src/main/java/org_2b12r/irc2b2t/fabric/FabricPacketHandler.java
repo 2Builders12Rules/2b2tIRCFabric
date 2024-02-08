@@ -53,15 +53,16 @@ public class FabricPacketHandler implements IPacketHandler {
         con.state = State.CONNECTED;
         IRC2b2t.runNextTick(() -> {
             Utils.print("Connected to server.");
-            IRC2b2t.sendChatState();
+            IRC2b2t.onWorldChange();
         });
     }
 
     @Override
     public void handle(Packets.S2CCommands packet) {
-        IRC2b2t.commands.clear();
-        IRC2b2t.commands.addAll(packet.commands);
-        IRC2b2t.runNextTick(() -> Utils.print("Commands received: " + packet.commands));
+        IRC2b2t.runNextTick(() -> {
+            IRC2b2t.commands.clear();
+            IRC2b2t.commands.addAll(packet.commands);
+        });
     }
 
     @Override

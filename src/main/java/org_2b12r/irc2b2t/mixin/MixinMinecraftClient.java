@@ -16,6 +16,6 @@ public abstract class MixinMinecraftClient {
 
     @Inject(at = @At("HEAD"), method = "setWorld")
     public void onWorldChange(CallbackInfo callbackInfo) {
-        IRC2b2t.sendChatState();
+        IRC2b2t.onWorldChange();
     }
 }

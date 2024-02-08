@@ -23,21 +23,26 @@ public class Packets {
     public static class C2SLogin implements Packet {
         public int version;
         public String username;
+        public UUID uuid;
 
         public C2SLogin(DataBuffer buf) {
             this.version = buf.readShort();
             this.username = buf.readString(16);
+            if (this.version >= 1)
+                this.uuid = buf.readUUID();
         }
 
-        public C2SLogin(int version, String username) {
+        public C2SLogin(int version, String username, UUID uuid) {
             this.version = version;
             this.username = username;
+            this.uuid = uuid;
         }
 
         @Override
         public void write(DataBuffer buf) {
             buf.writeShort((short) version);
             buf.writeString(this.username);
+            buf.writeUUID(this.uuid);
         }
 
         @Override
