@@ -147,6 +147,7 @@ public class IRC2b2t implements ClientModInitializer {
                                 this.sleep(1000);
                                 continue;
                             }
+
                             final FabricPacketHandler handler = new FabricPacketHandler();
                             final SocketChannel channel = SocketChannel.open();
                             connection = new Connection(channel, selector, handler);

@@ -8,7 +8,6 @@ import javax.crypto.spec.IvParameterSpec;
 import java.io.IOException;
 import java.net.StandardSocketOptions;
 import java.nio.ByteBuffer;
-import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
@@ -20,7 +19,7 @@ public class Connection {
     private final Selector selector;
     private final IPacketHandler handler;
 
-    public State state = State.AUTHENTICATING;
+    public volatile State state = State.AUTHENTICATING;
     public SecretKey key;
     private Cipher encrypt;
     private Cipher decrypt;
@@ -47,19 +46,11 @@ public class Connection {
     }
 
     private void enableWrite() {
-        try {
-            this.channel.register(selector, SelectionKey.OP_WRITE | SelectionKey.OP_READ, this);
-        } catch (ClosedChannelException e) {
-            throw new RuntimeException(e);
-        }
+        this.channel.keyFor(selector).interestOps(SelectionKey.OP_WRITE | SelectionKey.OP_READ);
     }
 
     private void disableWrite() {
-        try {
-            this.channel.register(selector, SelectionKey.OP_READ, this);
-        } catch (ClosedChannelException e) {
-            throw new RuntimeException(e);
-        }
+        this.channel.keyFor(selector).interestOps(SelectionKey.OP_READ);
     }
 
     private final DataBuffer tempPacketBuffer = new DataBuffer(4096);
@@ -69,11 +60,7 @@ public class Connection {
         tempPacketBuffer.writePos = 2; // Leave 2 bytes for packet length
         tempPacketBuffer.writeByte(state.getPacketId(packet.getClass()));
         packet.write(tempPacketBuffer);
-
-        final int pos = tempPacketBuffer.length();
-        tempPacketBuffer.writePos = 0;
-        tempPacketBuffer.writeShort((short) (pos - 2)); // Write Length
-        tempPacketBuffer.writePos = pos;
+        tempPacketBuffer.writeAt(0, buf -> buf.writeShort((short) (tempPacketBuffer.length() - 2)));
 
         encryptData(tempPacketBuffer);
 
@@ -81,9 +68,7 @@ public class Connection {
         final int written = channel.write(sendBuffer.toByteBuffer());
         sendBuffer.removeBytes(written);
 
-        if (sendBuffer.available() > 0)
-            enableWrite();
-        else
+        if (sendBuffer.available() <= 0)
             disableWrite();
     }
 
@@ -152,7 +137,7 @@ public class Connection {
 
     public void finishConnect() throws Exception {
         channel.finishConnect();
-        channel.register(selector, SelectionKey.OP_READ, this);
+        channel.keyFor(selector).interestOps(SelectionKey.OP_READ);
         try {
             channel.setOption(StandardSocketOptions.SO_KEEPALIVE, true);
             channel.setOption(ExtendedSocketOptions.TCP_KEEPIDLE, 60);

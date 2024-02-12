@@ -235,4 +235,11 @@ public class DataBuffer {
     public byte[] getByteArray() {
         return this.buffer;
     }
+
+    public void writeAt(int index, Consumer<DataBuffer> writer) {
+        final int oldWritePos = this.writePos;
+        this.writePos = index;
+        writer.accept(this);
+        this.writePos = oldWritePos;
+    }
 }
