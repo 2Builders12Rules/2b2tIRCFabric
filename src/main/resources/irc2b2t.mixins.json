@@ -8,7 +8,8 @@
   "client": [
     "MixinClientPlayNetworkHandler",
     "MixinMinecraftClient",
-    "MixinChatInputSuggestor"
+    "MixinChatInputSuggestor",
+    "SuggestionsAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

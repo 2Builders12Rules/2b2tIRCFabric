@@ -9,6 +9,7 @@ import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
+import org_2b12r.irc2b2t.mixin.SuggestionsAccessor;
 import org_2b12r.irc2b2t.net.Connection;
 import org_2b12r.irc2b2t.net.ConnectionException;
 import org_2b12r.irc2b2t.net.Packets;
@@ -61,7 +62,7 @@ public class IRC2b2t implements ClientModInitializer {
 
         final int start = reader.getCursor();
         final String cmd = reader.readUnquotedString();
-        final int end = reader.getCursor() - 1;
+        final int end = reader.getCursor();
 
         if (reader.getRemainingLength() > 0)
             return;
@@ -74,8 +75,14 @@ public class IRC2b2t implements ClientModInitializer {
 
         if (pendingSuggestions != null && pendingSuggestions.isDone()) {
             final Suggestions suggestions = pendingSuggestions.getNow(null);
-            if (suggestions != null)
-                suggestions.getList().addAll(newSuggestions);
+            if (suggestions != null) {
+                if(suggestions.equals(SuggestionsAccessor.getEmpty())) {
+                    pendingSuggestions.obtrudeValue(Suggestions.create(input, newSuggestions));
+                }
+                else {
+                    suggestions.getList().addAll(newSuggestions);
+                }
+            }
         }
     }
 

@@ -16,10 +16,10 @@ import org_2b12r.irc2b2t.fabric.IRC2b2t;
 import java.util.concurrent.CompletableFuture;
 
 @Mixin(ChatInputSuggestor.class)
-public class MixinChatInputSuggestor {
+public abstract class MixinChatInputSuggestor {
     @Shadow private @Nullable CompletableFuture<Suggestions> pendingSuggestions;
-
-    @Inject(method = "refresh", at = @At(value = "TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
+    @Shadow abstract void showCommandSuggestions();
+    @Inject(method = "refresh", at = @At(value = "INVOKE", target = "Ljava/util/concurrent/CompletableFuture;thenRun(Ljava/lang/Runnable;)Ljava/util/concurrent/CompletableFuture;", remap = false), locals = LocalCapture.CAPTURE_FAILHARD)
     private void refresh(CallbackInfo ci, String string) {
         IRC2b2t.addCompletions(string, pendingSuggestions);
     }
