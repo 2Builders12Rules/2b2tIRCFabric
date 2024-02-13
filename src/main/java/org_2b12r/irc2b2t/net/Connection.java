@@ -60,7 +60,9 @@ public class Connection {
         tempPacketBuffer.writePos = 2; // Leave 2 bytes for packet length
         tempPacketBuffer.writeByte(state.getPacketId(packet.getClass()));
         packet.write(tempPacketBuffer);
-        tempPacketBuffer.writeAt(0, buf -> buf.writeShort((short) (tempPacketBuffer.length() - 2)));
+
+        final short length = (short) (tempPacketBuffer.length() - 2);
+        tempPacketBuffer.writeAt(0, buf -> buf.writeShort(length));
 
         encryptData(tempPacketBuffer);
 
