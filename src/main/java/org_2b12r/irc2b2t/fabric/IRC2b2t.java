@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import static org_2b12r.irc2b2t.fabric.Utils.*;
+
 public class IRC2b2t implements ClientModInitializer {
     public static boolean sendToIRC = false;
 
@@ -45,19 +47,10 @@ public class IRC2b2t implements ClientModInitializer {
 
     public static void addCompletions(String input, @Nullable CompletableFuture<Suggestions> pendingSuggestions) {
         final StringReader reader = new StringReader(input);
-        if (!isConnected())
+        if (!isConnected() || !getIRCStateAndSkipPrefix(reader))
             return;
 
-        boolean hasPrefix = reader.canRead() && reader.peek() == Config.sendToIRCPrefix;
-        if (!hasPrefix && !sendToIRC)
-            return;
-
-        if (hasPrefix)
-            reader.skip();
-
-        if (reader.canRead() && reader.peek() == '/')
-            reader.skip();
-        else
+        if (!trySkipChar(reader, '/'))
             return;
 
         final int start = reader.getCursor();
@@ -75,47 +68,70 @@ public class IRC2b2t implements ClientModInitializer {
 
         if (pendingSuggestions != null && pendingSuggestions.isDone()) {
             final Suggestions suggestions = pendingSuggestions.getNow(null);
-            if (suggestions != null) {
-                if(suggestions.equals(SuggestionsAccessor.getEmpty())) {
-                    pendingSuggestions.obtrudeValue(Suggestions.create(input, newSuggestions));
-                }
-                else {
-                    suggestions.getList().addAll(newSuggestions);
-                }
-            }
+
+            if (suggestions == null)
+                pendingSuggestions.complete(Suggestions.create(input, newSuggestions));
+            else if (suggestions == SuggestionsAccessor.getEmpty() || (input.charAt(0) == Config.sendToIRCPrefix))
+                pendingSuggestions.obtrudeValue(Suggestions.create(input, newSuggestions));
+            else
+                suggestions.getList().addAll(newSuggestions);
         }
     }
 
-    public static OrderedText highlightText(String original, int firstCharacterIndex) {
-        final StringReader reader = new StringReader(original);
-        if (!isConnected())
+    public static OrderedText highlightText(String input, int firstCharacterIndex) {
+        final StringReader reader = new StringReader(input);
+        reader.setCursor(firstCharacterIndex);
+
+        if (!isConnected() || !getIRCStateAndSkipPrefix(reader))
             return null;
 
-        boolean hasPrefix = reader.canRead() && reader.peek() == Config.sendToIRCPrefix;
-        if (!hasPrefix && !sendToIRC)
-            return null;
-
-        if (hasPrefix)
+        final boolean isCommand = reader.canRead() && reader.peek() == '/';
+        if (isCommand) {
             reader.skip();
 
-        if (reader.canRead() && reader.peek() == '/')
-            reader.skip();
-        else
-            return null;
+            final int start = reader.getCursor();
+            final String cmd = reader.readUnquotedString();
+            reader.setCursor(start);
 
-        final int start = reader.getCursor();
-        final String cmd = reader.readUnquotedString();
-        reader.setCursor(start);
+            if (commands.contains(cmd)) {
+                final ArrayList<OrderedText> list = Lists.newArrayList();
+                list.add(OrderedText.styledForwardsVisitedString(input.substring(firstCharacterIndex, start),
+                        Style.EMPTY.withColor(Formatting.GRAY)));
+                list.add(OrderedText.styledForwardsVisitedString(reader.getRemaining(),
+                        Style.EMPTY.withColor(Formatting.WHITE)));
 
-        if (commands.contains(cmd)) {
+                return OrderedText.concat(list);
+            }
+        } else if (input.charAt(firstCharacterIndex) == Config.sendToIRCPrefix) {
             final ArrayList<OrderedText> list = Lists.newArrayList();
-            list.add(OrderedText.styledForwardsVisitedString(original.substring(0, start), Style.EMPTY.withColor(Formatting.GRAY)));
-            if (reader.canRead())
-                list.add(OrderedText.styledForwardsVisitedString(reader.getRemaining(), Style.EMPTY.withColor(Formatting.WHITE)));
+            list.add(OrderedText.styledForwardsVisitedString(input.substring(firstCharacterIndex, firstCharacterIndex + 1),
+                    Style.EMPTY.withColor(Formatting.GRAY)));
+            list.add(OrderedText.styledForwardsVisitedString(reader.getRemaining(),
+                    Style.EMPTY.withColor(Formatting.WHITE)));
+
             return OrderedText.concat(list);
         }
-        else
-            return null;
+
+        return null;
+    }
+
+    private static boolean getIRCStateAndSkipPrefix(StringReader reader) {
+        final boolean hasPrefix = reader.canRead() && reader.peek() == Config.sendToIRCPrefix;
+        if (hasPrefix) {
+            reader.skip();
+            return true;
+        }
+
+        return sendToIRC;
+    }
+
+    private static boolean trySkipChar(StringReader reader, char c) {
+        if (reader.canRead() && reader.peek() == c) {
+            reader.skip();
+            return true;
+        }
+
+        return false;
     }
 
     //todo: only try to connect when internet is available
@@ -166,9 +182,9 @@ public class IRC2b2t implements ClientModInitializer {
                                 continue;
 
                             if (key.isConnectable()) {
-                                runNextTick(() -> Utils.print("Connecting..."));
+                                runNextTick(() -> print("Connecting..."));
                                 con.finishConnect();
-                                connection.sendPacket(new Packets.C2SLogin(1, Utils.getUsername(), Utils.getUUID()));
+                                connection.sendPacket(new Packets.C2SLogin(1, getUsername(), getUUID()));
                             }
 
                             if (key.isReadable())
@@ -179,14 +195,14 @@ public class IRC2b2t implements ClientModInitializer {
                             iterator.remove();
                         }
                     } catch (UnresolvedAddressException | ConnectException e) {
-                        runNextTick(() -> Utils.print("Failed to connect: " + e));
+                        runNextTick(() -> print("Failed to connect: " + e));
                         reconnectDelayMs = -1; // Disable auto-reconnect
                     } catch (ConnectionException e) {
                         disconnect();
-                        runNextTick(() -> Utils.sendChatMessage(Text.literal(ircPrefix + "Kicked: ").append(e.message)));
+                        runNextTick(() -> sendChatMessage(Text.literal(ircPrefix + "Kicked: ").append(e.message)));
                     } catch (Exception e) {
                         disconnect();
-                        runNextTick(() -> Utils.print(String.format("Disconnected: %s %s", e.getClass().getName(), e.getMessage())));
+                        runNextTick(() -> print(String.format("Disconnected: %s %s", e.getClass().getName(), e.getMessage())));
                     } finally {
                         if (!isConnected() && canAutoReconnect())
                             this.sleep(reconnectDelayMs);
@@ -221,9 +237,8 @@ public class IRC2b2t implements ClientModInitializer {
 
     public static void onTick() {
         Runnable runnable;
-        while ((runnable = tickQueue.poll()) != null) {
+        while ((runnable = tickQueue.poll()) != null)
             runnable.run();
-        }
     }
 
     public static String lastAccessToken = "";
@@ -232,7 +247,7 @@ public class IRC2b2t implements ClientModInitializer {
         if (!isConnected())
             return;
 
-        final String accessToken = Utils.getMC().getSession().getAccessToken();
+        final String accessToken = getMC().getSession().getAccessToken();
         if (!lastAccessToken.equals(accessToken)) { // Detects account change or re-login
             lastAccessToken = accessToken;
             connection.close();
@@ -258,14 +273,14 @@ public class IRC2b2t implements ClientModInitializer {
             final String[] split = message.split(" ");
             if (split.length == 1) {
                 sendToIRC = !sendToIRC;
-                Utils.print((sendToIRC ? "§aEnabled§r" : "§cDisabled§r") + " sending messages to IRC.");
+                print((sendToIRC ? "§aEnabled§r" : "§cDisabled§r") + " sending messages to IRC.");
                 if (!isConnected() && !canAutoReconnect()) {
                     reconnectDelayMs = 0; // Enable auto-reconnect
-                    Utils.print("§cReconnecting to server...");
+                    print("§cReconnecting to server...");
                 }
             } else if (split.length == 2) {
                 Config.sendToIRCPrefix = split[1].charAt(0);
-                Utils.print("Set IRC prefix to: " + Config.sendToIRCPrefix);
+                print("Set IRC prefix to: " + Config.sendToIRCPrefix);
             }
 
             return true;
@@ -292,21 +307,21 @@ public class IRC2b2t implements ClientModInitializer {
      */
     private static void sendToIRC(String message) {
         if (!isConnected()) {
-            Utils.print(String.format("§cNot connected to server. %s", canAutoReconnect() ? "Reconnecting..." : "Use /irc command to reconnect to IRC."));
+            print(String.format("§cNot connected to server. %s", canAutoReconnect() ? "Reconnecting..." : "Use /irc command to reconnect to IRC."));
             if (lastDisconnectReason != null)
-                Utils.print("Last disconnect reason: " + lastDisconnectReason);
+                print("Last disconnect reason: " + lastDisconnectReason);
 
             sendToIRC = false;
         }
 
         if (connection.state != State.CONNECTED) {
-            Utils.print("§cNot connected yet.");
+            print("§cNot connected yet.");
         }
 
         try {
             connection.sendPacket(new Packets.C2SChat(message));
         } catch (Throwable e) {
-            Utils.print("§cFailed to send message: " + e.getMessage());
+            print("§cFailed to send message: " + e.getMessage());
         }
     }
 }
