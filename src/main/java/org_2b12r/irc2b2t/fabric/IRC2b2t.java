@@ -82,6 +82,16 @@ public class IRC2b2t implements ClientModInitializer {
         final StringReader reader = new StringReader(input);
         reader.setCursor(firstCharacterIndex);
 
+        if (input.startsWith("/irc")) {
+            final ArrayList<OrderedText> list = Lists.newArrayList();
+            list.add(OrderedText.styledForwardsVisitedString(String.valueOf(reader.read()),
+                    Style.EMPTY.withColor(Formatting.GRAY)));
+            list.add(OrderedText.styledForwardsVisitedString(reader.getRemaining(),
+                    Style.EMPTY.withColor(Formatting.WHITE)));
+
+            return OrderedText.concat(list);
+        }
+
         if (!isConnected() || !getIRCStateAndSkipPrefix(reader))
             return null;
 
