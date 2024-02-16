@@ -41,8 +41,6 @@ public class IRC2b2t implements ClientModInitializer {
     public static int reconnectDelayMs = 5000;
     public static Text lastDisconnectReason;
 
-    public static String ircPrefix = "§r[§cIRC§r] ";
-
     public static ConcurrentLinkedQueue<Runnable> tickQueue = new ConcurrentLinkedQueue<>();
 
     public static void addCompletions(String input, @Nullable CompletableFuture<Suggestions> pendingSuggestions) {
@@ -178,7 +176,8 @@ public class IRC2b2t implements ClientModInitializer {
                             final SocketChannel channel = SocketChannel.open();
                             connection = new Connection(channel, selector, handler);
                             handler.con = connection;
-                            channel.connect(new InetSocketAddress("irc.2b12r.org", 7533));
+//                            channel.connect(new InetSocketAddress("irc.2b12r.org", 7533));
+                            channel.connect(new InetSocketAddress("localhost", 7533));
                             reconnectDelayMs = 5000;
                         }
 
@@ -209,7 +208,7 @@ public class IRC2b2t implements ClientModInitializer {
                         reconnectDelayMs = -1; // Disable auto-reconnect
                     } catch (ConnectionException e) {
                         disconnect();
-                        runNextTick(() -> sendChatMessage(Text.literal(ircPrefix + "Kicked: ").append(e.message)));
+                        runNextTick(() -> sendChatMessage(Text.literal("Kicked: ").append(e.message)));
                     } catch (Exception e) {
                         disconnect();
                         runNextTick(() -> print(String.format("Disconnected: %s %s", e.getClass().getName(), e.getMessage())));
