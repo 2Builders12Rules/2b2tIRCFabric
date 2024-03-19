@@ -17,7 +17,7 @@ public class FabricPacketHandler implements IPacketHandler {
     @Override
     public void handle(Packets.Disconnect packet) {
         IRC2b2t.reconnectDelayMs = packet.clientReconnectTimer * 1000;
-        IRC2b2t.lastDisconnectReason = Text.Serializer.fromLenientJson(packet.reason);
+        IRC2b2t.lastDisconnectReason = Utils.GSON.fromJson(packet.reason, Text.class);
         throw new ConnectionException(IRC2b2t.lastDisconnectReason);
     }
 
@@ -33,7 +33,7 @@ public class FabricPacketHandler implements IPacketHandler {
             final PublicKey publicKey = NetworkEncryptionUtils.decodeEncodedRsaPublicKey(packet.publicKey);
             final String hash = new BigInteger(NetworkEncryptionUtils.computeServerId("", publicKey, sharedKey)).toString(16);
 
-            Utils.getMC().getSessionService().joinServer(Utils.getMC().getSession().getProfile(), Utils.getMC().getSession().getAccessToken(), hash);
+            Utils.getMC().getSessionService().joinServer(Utils.getMC().getSession().getUuidOrNull(), Utils.getMC().getSession().getAccessToken(), hash);
 
             con.sendPacketImmediately(new Packets.C2SEncryptionResponse(NetworkEncryptionUtils.encrypt(publicKey, sharedKey.getEncoded())));
             con.setKey(sharedKey);
@@ -66,7 +66,7 @@ public class FabricPacketHandler implements IPacketHandler {
 
     @Override
     public void handle(Packets.S2CChat packet) {
-        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Text.Serializer.fromLenientJson(packet.json)));
+        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Utils.GSON.fromJson(packet.json, Text.class)));
     }
 
     @Override
@@ -74,7 +74,7 @@ public class FabricPacketHandler implements IPacketHandler {
 
     @Override
     public void handle(Packets.S2CPlayerMessage packet) {
-        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Text.Serializer.fromLenientJson(packet.message)));
+        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Utils.GSON.fromJson(packet.message, Text.class)));
     }
 
     @Override
