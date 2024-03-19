@@ -1,12 +1,12 @@
 package org_2b12r.irc2b2t.fabric;
 
+import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.text.Text;
 import org_2b12r.irc2b2t.net.Connection;
 import org_2b12r.irc2b2t.net.ConnectionException;
 import org_2b12r.irc2b2t.net.Packets;
 import org_2b12r.irc2b2t.net.State;
-import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -175,7 +175,9 @@ public class IRC2b2t implements ClientModInitializer {
             Utils.sendChatMessage(Text.of(String.format("§cNot connected to IRC server. %s", canAutoReconnect() ? "Reconnecting..." : "Use /irc command to reconnect to IRC.")));
             if(!canAutoReconnect() && lastDisconnectReason != null)
                 Utils.sendChatMessage(Text.literal("Last Disconnect Reason: ").append(lastDisconnectReason));
+
             sendToIRC = false;
+            Utils.sendChatMessage(Text.of("§cDisabled§r sending messages to IRC because you are not connected."));
         }
 
         Utils.getMC().inGameHud.getChatHud().addToMessageHistory(message);
