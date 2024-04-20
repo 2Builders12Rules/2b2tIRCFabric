@@ -5,18 +5,19 @@ import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.context.StringRange;
 import com.mojang.brigadier.suggestion.Suggestion;
 import com.mojang.brigadier.suggestion.Suggestions;
+import net.fabricmc.api.ClientModInitializer;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.Style;
+import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
+import org_2b12r.irc2b2t.Utils;
 import org_2b12r.irc2b2t.mixin.SuggestionsAccessor;
 import org_2b12r.irc2b2t.net.Connection;
 import org_2b12r.irc2b2t.net.ConnectionException;
 import org_2b12r.irc2b2t.net.Packets;
 import org_2b12r.irc2b2t.net.State;
-import net.fabricmc.api.ClientModInitializer;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.text.Text;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -25,11 +26,14 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.channels.UnresolvedAddressException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org_2b12r.irc2b2t.fabric.Utils.*;
+import static org_2b12r.irc2b2t.Utils.*;
 
 public class IRC2b2t implements ClientModInitializer {
     public static boolean sendToIRC = false;

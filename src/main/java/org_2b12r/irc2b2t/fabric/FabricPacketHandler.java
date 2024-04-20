@@ -4,6 +4,7 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import net.minecraft.network.encryption.NetworkEncryptionException;
 import net.minecraft.network.encryption.NetworkEncryptionUtils;
 import net.minecraft.text.Text;
+import org_2b12r.irc2b2t.Utils;
 import org_2b12r.irc2b2t.net.*;
 
 import javax.crypto.SecretKey;
@@ -11,13 +12,15 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 
+import static org_2b12r.irc2b2t.Utils.GSON;
+
 public class FabricPacketHandler implements IPacketHandler {
     public Connection con;
 
     @Override
     public void handle(Packets.Disconnect packet) {
         IRC2b2t.reconnectDelayMs = packet.clientReconnectTimer * 1000;
-        IRC2b2t.lastDisconnectReason = Utils.GSON.fromJson(packet.reason, Text.class);
+        IRC2b2t.lastDisconnectReason = GSON.fromJson(packet.reason, Text.class);
         throw new ConnectionException(IRC2b2t.lastDisconnectReason);
     }
 
@@ -67,7 +70,7 @@ public class FabricPacketHandler implements IPacketHandler {
 
     @Override
     public void handle(Packets.S2CChat packet) {
-        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Utils.GSON.fromJson(packet.json, Text.class)));
+        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(GSON.fromJson(packet.json, Text.class)));
     }
 
     @Override
@@ -75,7 +78,7 @@ public class FabricPacketHandler implements IPacketHandler {
 
     @Override
     public void handle(Packets.S2CPlayerMessage packet) {
-        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(Utils.GSON.fromJson(packet.message, Text.class)));
+        IRC2b2t.runNextTick(() -> Utils.sendChatMessage(GSON.fromJson(packet.message, Text.class)));
     }
 
     @Override
