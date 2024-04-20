@@ -321,6 +321,7 @@ public class IRC2b2t implements ClientModInitializer {
                 print("Last disconnect reason: " + lastDisconnectReason);
 
             sendToIRC = false;
+            Utils.sendChatMessage(Text.of("§cDisabled§r sending messages to IRC because you are not connected."));
         }
 
         if (connection.state != State.CONNECTED) {
