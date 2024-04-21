@@ -5,6 +5,7 @@ import net.minecraft.network.encryption.NetworkEncryptionException;
 import net.minecraft.network.encryption.NetworkEncryptionUtils;
 import net.minecraft.text.Text;
 import org_2b12r.irc2b2t.Utils;
+import org_2b12r.irc2b2t.fabric.command.ModCommandManager;
 import org_2b12r.irc2b2t.net.*;
 
 import javax.crypto.SecretKey;
@@ -62,10 +63,7 @@ public class FabricPacketHandler implements IPacketHandler {
 
     @Override
     public void handle(Packets.S2CCommands packet) {
-        IRC2b2t.runNextTick(() -> {
-            IRC2b2t.commands.clear();
-            IRC2b2t.commands.addAll(packet.commands);
-        });
+        IRC2b2t.runNextTick(() -> ModCommandManager.registerCommands(packet.commands));
     }
 
     @Override

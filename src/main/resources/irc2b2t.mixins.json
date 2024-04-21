@@ -3,13 +3,13 @@
   "minVersion": "0.8",
   "package": "org_2b12r.irc2b2t.mixin",
   "compatibilityLevel": "JAVA_17",
-  "mixins": [
-  ],
   "client": [
-    "MixinClientPlayNetworkHandler",
-    "MixinMinecraftClient",
+    "CommandDispatcherAccessor",
+    "CommandNodeMixin",
     "MixinChatInputSuggestor",
-    "SuggestionsAccessor"
+    "MixinChatScreen",
+    "MixinClientPlayNetworkHandler",
+    "MixinMinecraftClient"
   ],
   "injectors": {
     "defaultRequire": 1
