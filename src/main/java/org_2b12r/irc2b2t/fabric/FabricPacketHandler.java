@@ -4,16 +4,16 @@ import com.mojang.authlib.exceptions.AuthenticationException;
 import net.minecraft.network.encryption.NetworkEncryptionException;
 import net.minecraft.network.encryption.NetworkEncryptionUtils;
 import net.minecraft.text.Text;
-import org_2b12r.irc2b2t.Utils;
 import org_2b12r.irc2b2t.fabric.command.ModCommandManager;
 import org_2b12r.irc2b2t.net.*;
+import org_2b12r.irc2b2t.utils.Utils;
 
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.PublicKey;
 
-import static org_2b12r.irc2b2t.Utils.GSON;
+import static org_2b12r.irc2b2t.utils.Utils.GSON;
 
 public class FabricPacketHandler implements IPacketHandler {
     public Connection con;

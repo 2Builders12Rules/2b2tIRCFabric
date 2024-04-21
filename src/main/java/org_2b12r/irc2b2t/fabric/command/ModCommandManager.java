@@ -17,8 +17,8 @@ import org_2b12r.irc2b2t.fabric.IRC2b2t;
 import java.util.List;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
-import static org_2b12r.irc2b2t.Utils.getMC;
-import static org_2b12r.irc2b2t.Utils.print;
+import static org_2b12r.irc2b2t.utils.Utils.getMC;
+import static org_2b12r.irc2b2t.utils.Utils.print;
 
 public class ModCommandManager {
     private static final CommandDispatcher<CommandSource> ircDispatcher = new CommandDispatcher<>();

@@ -7,7 +7,7 @@ import org_2b12r.irc2b2t.fabric.IRC2b2t;
 
 import static com.mojang.brigadier.arguments.StringArgumentType.getString;
 import static com.mojang.brigadier.arguments.StringArgumentType.greedyString;
-import static org_2b12r.irc2b2t.Utils.print;
+import static org_2b12r.irc2b2t.utils.Utils.print;
 
 public class IRCCommand {
     public static void register(CommandDispatcher<CommandSource> dispatcher) {

@@ -1,4 +1,4 @@
-package org_2b12r.irc2b2t;
+package org_2b12r.irc2b2t.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

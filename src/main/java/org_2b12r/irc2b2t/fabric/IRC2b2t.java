@@ -3,11 +3,11 @@ package org_2b12r.irc2b2t.fabric;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.text.Text;
-import org_2b12r.irc2b2t.Utils;
 import org_2b12r.irc2b2t.net.Connection;
 import org_2b12r.irc2b2t.net.ConnectionException;
 import org_2b12r.irc2b2t.net.Packets;
 import org_2b12r.irc2b2t.net.State;
+import org_2b12r.irc2b2t.utils.Utils;
 
 import java.io.IOException;
 import java.net.ConnectException;
@@ -19,7 +19,7 @@ import java.nio.channels.UnresolvedAddressException;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import static org_2b12r.irc2b2t.Utils.*;
+import static org_2b12r.irc2b2t.utils.Utils.*;
 
 public class IRC2b2t implements ClientModInitializer {
     public static boolean sendToIRC = false;
