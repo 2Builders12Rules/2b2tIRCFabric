@@ -58,7 +58,7 @@ public abstract class MixinChatInputSuggestor {
     }
 
     /**
-     * Prevents IRC commands in command blocks.
+     * <p>Prevents IRC commands from being completed or considered valid in command blocks.</p>
      * <pre><code>
      *  INVOKEVIRTUAL net/minecraft/client/network/ClientPlayNetworkHandler.getCommandDispatcher ()Lcom/mojang/brigadier/CommandDispatcher;
      *  ASTORE 6
